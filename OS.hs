@@ -1,12 +1,11 @@
 import           Graphics.Rendering.OpenGL
 import           Graphics.UI.GLUT
 
-import System.Random
+import           System.Random
 
-import Data.List
-import Data.Ord
-import Data.Char
-
+import           Data.List
+import           Data.Ord
+import           Data.Char
 
 
 
@@ -85,4 +84,3 @@ display = do
   genSeed <- randomIO :: IO Int
   mapM_ (\s -> renderCircLine (genLineCirc (realToFrac s))) $ partialSumList $ fst $ genProbSpace (mkStdGen genSeed) 10
   flush
-
