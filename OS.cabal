@@ -48,7 +48,7 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 
-executable Grow
+executable OS
   -- .hs or .lhs file containing the Main module.
   main-is:             OS.hs
   
@@ -63,6 +63,9 @@ executable Grow
                      , OpenGL
                      , base >=4.7 && <4.8
                      , random
+                     , bytestring
+                     , base64-bytestring
+                     , JuicyPixels
   
   -- Directories containing source files.
   -- hs-source-dirs:      

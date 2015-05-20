@@ -1,0 +1,18 @@
+<html>
+<head>
+<script type="text/javascript">
+function updateimage(val){
+inp = document.getElementById("inp");
+img = document.getElementById("img");
+img.src = val || "data:image/png;base64,"+inp.value;
+}
+updateimage("");
+</script>
+</head>
+<body>
+<p>Setjið inn Base64-encodeaða png mynd hér</p>
+<br />
+<input id="inp" type="text" name="search" onInput="updateimage()"><br />
+<img id="img" src="" width="auto" height="300px" />
+</body>
+</html>

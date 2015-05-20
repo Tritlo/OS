@@ -2,11 +2,19 @@ import           Graphics.Rendering.OpenGL
 import           Graphics.UI.GLUT
 
 import           System.Random
+import           Foreign.Marshal
+import           Foreign.Ptr
+import           Foreign.ForeignPtr
 
 import           Data.List
 import           Data.Ord
+import           Data.Word
 import           Data.Char
 
+import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Base64 as B64
+import qualified Data.ByteString.Lazy as BSL
+import Codec.Picture
 
 
 genLineCirc ::  GLfloat -> [(GLfloat,GLfloat,GLfloat)]
@@ -74,13 +82,36 @@ hexStrToColor xs =
   Color3 a b c
   where (a,b,c) = hexStringToFloat xs
 
+format :: Ptr Word8 -> PixelData Word8
+format ptr = PixelData RGBA UnsignedByte ptr
+
+{-
+ - Skilar Base64 encodeaðri mynd
+ - af því sem er í buffernum núna
+ - @TODO: Finna út hvernig 
+ - hægt er að sleppa því að prenta á skjáinn
+ -}
+printPixels :: Position -> Size -> IO (BS.ByteString)
+-- @ merkið þýðir að við bindum siz, en við deconstructum það í leiðinni
+printPixels pos siz@(Size vw vh) = do 
+  let sib = fromIntegral (vw*vh*4)
+      fi q = fromIntegral q
+  ptr <- mallocBytes sib
+  readPixels pos siz (format ptr)
+  fpn <- newForeignPtr_ ptr
+  let img = (imageFromUnsafePtr (fi vw) (fi vh) fpn) :: (Image PixelRGBA8)
+  --writePng "ok.png" img
+  free ptr
+  return $ B64.encode $ BSL.toStrict $  encodePng img
+
 display :: IO() 
 display = do
   clear [ColorBuffer]
   color $ hexStrToColor "#deb887"
   renderCirc Polygon (genLineCirc 1.0) 
-  --color $ Color3 (0.0 :: GLfloat) 0.0 0.0
   color $ hexStrToColor "#8b7355"
   genSeed <- randomIO :: IO Int
   mapM_ (\s -> renderCircLine (genLineCirc (realToFrac s))) $ partialSumList $ fst $ genProbSpace (mkStdGen genSeed) 10
+  bs <- printPixels (Position 0 0) (Size 200 200)
+  BS.putStrLn bs
   flush
